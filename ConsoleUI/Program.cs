@@ -25,11 +25,21 @@ namespace ConsoleUI
         private static void ProductText()
         {
             ProductManager productManager = new ProductManager(new EfProductDal());
-            foreach (var item in productManager.GetProductDetails())
+
+            var result = productManager.GetProductDetails();
+            if (result.Success)
             {
-                Console.WriteLine(item.ProductId+" "+ item.ProductName+ " "+item.CategoryName+" " + item.UnitsInStock);
+                foreach (var item in result.Data)
+                {
+                    Console.WriteLine(item.ProductId + " " + item.ProductName + " / " + item.CategoryName + " " + item.UnitsInStock);
+                }
+
             }
-            Console.WriteLine("Hello World!");
+            else
+            {
+                Console.WriteLine(result.Message);
+
+            }
         }
     }
 }
