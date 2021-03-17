@@ -1,4 +1,5 @@
 ﻿using Business.Abstract;
+using Business.BusinessAspects.Autofac;
 using Business.Constants;
 using Business.ValidationRules.FluentValidation;
 using Core.Aspects.Autofac.Validation;
@@ -28,6 +29,8 @@ namespace Business.Concrete
             _categoryService = categoryService;
         }
 
+
+        [SecuredOperation("product.add,admin")]//Claim
         [ValidationAspect(typeof(ProductValidator))]
         public IResult Add(Product product)
         {
@@ -75,6 +78,7 @@ namespace Business.Concrete
         {
             return new SuccessDataResult<List<ProductDetailDto>>(_productDal.GetProductDetails(), Messages.ProductListed);
         }
+
 
         [ValidationAspect(typeof(ProductValidator))]
         public IResult Update(Product product)
