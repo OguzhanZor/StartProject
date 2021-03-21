@@ -2,6 +2,9 @@
 using Business.BusinessAspects.Autofac;
 using Business.Constants;
 using Business.ValidationRules.FluentValidation;
+using Core.Aspects.Autofac.Caching;
+using Core.Aspects.Autofac.Performance;
+using Core.Aspects.Autofac.Transaction;
 using Core.Aspects.Autofac.Validation;
 using Core.CrossCuttingConcerns.Validation;
 using Core.Utilities.Business;
@@ -32,6 +35,7 @@ namespace Business.Concrete
 
         [SecuredOperation("product.add,admin")]//Claim
         [ValidationAspect(typeof(ProductValidator))]
+        [CacheRemoveAspect("IProductService.Get")]
         public IResult Add(Product product)
         {
             //validation
@@ -48,6 +52,7 @@ namespace Business.Concrete
             return new SuccessResult(Messages.ProductAdded);
         }
 
+        [CacheAspect]//Key,Value
         public IDataResult<List<Product>> GatAll()
         {
             if (DateTime.Now.Hour == 22)
@@ -64,6 +69,8 @@ namespace Business.Concrete
             return new SuccessDataResult<List<Product>>(_productDal.GetAll(p => p.CategoryId == id));
         }
 
+        [CacheAspect]
+        [PerformanceAspect(5)]
         public IDataResult<Product> GetById(int id)
         {
             return new SuccessDataResult<Product>(_productDal.Get(p => p.ProductId == id));
@@ -81,10 +88,25 @@ namespace Business.Concrete
 
 
         [ValidationAspect(typeof(ProductValidator))]
+        [CacheRemoveAspect("IProductService.Get")]
         public IResult Update(Product product)
         {
             _productDal.Update(product);
             return new SuccessDataResult<Product>(_productDal.Get(p => p.ProductId == product.ProductId), "Urun guncellendi.");
+        }
+
+
+        [TransactionScopeAspect]
+        public IResult AddTransactionalTest(Product product)//Deneme metodu bir şey transfer edildiginde
+                                                            //eger sistemde sıkıntı olursa geri almanın yolu
+        {
+            Add(product);
+            if (product.UnitPrice<10)
+            {
+                throw new Exception("");
+            }
+            Add(product);
+            return null;
         }
 
         private IResult CheckIfProductCountOfCategoryCorrect(int categoryId)
@@ -114,5 +136,6 @@ namespace Business.Concrete
             }
             return new SuccessResult();
         }
+
     }
 }
