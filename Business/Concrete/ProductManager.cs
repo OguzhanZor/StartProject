@@ -33,7 +33,7 @@ namespace Business.Concrete
         }
 
 
-        [SecuredOperation("product.add,admin")]//Claim
+       // [SecuredOperation("product.add,admin")]//Claim
         [ValidationAspect(typeof(ProductValidator))]
         [CacheRemoveAspect("IProductService.Get")]
         public IResult Add(Product product)
@@ -53,6 +53,7 @@ namespace Business.Concrete
         }
 
         [CacheAspect]//Key,Value
+        [PerformanceAspect(1)]
         public IDataResult<List<Product>> GatAll()
         {
             if (DateTime.Now.Hour == 22)
@@ -70,7 +71,7 @@ namespace Business.Concrete
         }
 
         [CacheAspect]
-        [PerformanceAspect(5)]
+        [PerformanceAspect(1)]
         public IDataResult<Product> GetById(int id)
         {
             return new SuccessDataResult<Product>(_productDal.Get(p => p.ProductId == id));

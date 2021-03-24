@@ -43,7 +43,8 @@ namespace WebAPI
             //AOP
             //services.AddSingleton<IProductService, ProductManager>();
             //services.AddSingleton<IProductDal, EfProductDal>();
-          
+
+            services.AddCors();////Cors için sonradadan eklendi
             
             var tokenOptions = Configuration.GetSection("TokenOptions").Get<TokenOptions>();
 
@@ -76,6 +77,9 @@ namespace WebAPI
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseCors(builder => builder.WithOrigins("http://localhost:4200").AllowAnyHeader()); /// burada addresten gelen butun post getleri
+                                                                                                        ///felan izin vermek için kullanýlýyor.
+                                                                                                        ///Güvendigimizi belirtiyoruz.
 
             app.UseHttpsRedirection();
 
